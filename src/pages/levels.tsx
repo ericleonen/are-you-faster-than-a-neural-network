@@ -3,9 +3,9 @@ import LevelPreview from "@/components/LevelPreview";
 
 const Levels = () => {
     return (
-        <div className="flex flex-col p-12">
+        <div className="flex flex-col h-full p-12 overflow-y-scroll">
             <Banner />
-            <h1 className="mb-8 text-4xl font-semibold theme">Levels</h1>
+            <h1 className="mt-12 mb-8 text-4xl font-semibold theme">Levels</h1>
             <div className="flex flex-wrap max-w-[80vw]">
                 <LevelPreview levelNumber={1} />
                 <LevelPreview levelNumber={2} />
