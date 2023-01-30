@@ -14,7 +14,8 @@ const DataCanvas = () => {
 
         const cyanData = generateDataCenter([100, 150], {
             maxDist: 78,
-            numPoints: 50
+            minDist: 50,
+            numPoints: 100
         });
 
         drawData(canvasRef.current, {
