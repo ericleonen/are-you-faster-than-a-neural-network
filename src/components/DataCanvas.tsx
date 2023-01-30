@@ -1,4 +1,5 @@
 import { drawData, drawGrid } from "@/utils/data";
+import { generateDataCenter } from "@/utils/dataGen";
 import { useEffect, useRef } from "react";
 
 const DataCanvas = () => {
@@ -10,6 +11,17 @@ const DataCanvas = () => {
             numLines: 25,
             lineColor: "gray"
         });
+
+        const cyanData = generateDataCenter([100, 150], {
+            maxDist: 78,
+            numPoints: 50
+        });
+
+        drawData(canvasRef.current, {
+            data: cyanData,
+            radius: 5,
+            color: "cyan"
+        })
     }, []);
 
     return (
