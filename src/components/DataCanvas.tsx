@@ -12,17 +12,6 @@ const DataCanvas = () => {
         });
     }, []);
 
-    useEffect(() => {
-        const cyanData = [[50, 50], [53, 55]];
-
-        drawData(canvasRef.current, {
-            data: cyanData,
-            radius: 5,
-            color: "indigo"
-        });
-        
-    }, []);
-
     return (
         <div>
             <canvas
