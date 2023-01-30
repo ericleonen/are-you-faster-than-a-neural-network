@@ -17,8 +17,10 @@ export const generateDataCenter = (center: [number, number], centerOptions: cent
     }
 
     for (let n = 0; n < numPoints; n++) {
-        // gamma distribution (raise to power < 1 to skew right)
-        const dist = Math.pow(Math.random(), 0.7) * (maxDist - minDist) + minDist;
+        const minDistSquared = minDist * minDist;
+        const squaredDiff = (maxDist * maxDist) - minDistSquared;
+
+        const dist = Math.sqrt(Math.random() * squaredDiff + minDistSquared);
         const angle = Math.random() * 2 * Math.PI;
 
         data.push([
@@ -30,6 +32,13 @@ export const generateDataCenter = (center: [number, number], centerOptions: cent
     return data;
 };
 
-// export const generateDataShape = (vertices: number[][], centerOptions: centerOptions): number[][] => {
+export const generateDataShape = (vertices: number[][], centerOptions: centerOptions): number[][] => {
+    // find the top left point
+    // find the bottom right point
+    // move in a spaced grid, creating dataCenters each time
+    // the grid point is in the polygon (defined by the vertices)
 
-// };
+    const data: number[][] = [];
+
+    return data;
+};

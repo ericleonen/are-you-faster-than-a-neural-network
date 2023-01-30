@@ -12,8 +12,8 @@ const DataCanvas = () => {
             lineColor: "gray"
         });
 
-        const cyanData = generateDataCenter([100, 150], {
-            maxDist: 78,
+        const cyanData = generateDataCenter([200, 250], {
+            maxDist: 100,
             minDist: 50,
             numPoints: 100
         });
