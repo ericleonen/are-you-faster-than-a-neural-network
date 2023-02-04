@@ -9,6 +9,9 @@ const DrawCanvas = () => {
 
     const [origin, setOrigin] = useState<[number, number] | null>(null);
 
+    const [drawnShapes, setDrawnShapes] = useState<number[][][]>([]);
+    const [currentShape, setCurrentShape] = useState<number[][]>([]);
+
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
     useEffect(() => {
@@ -22,8 +25,6 @@ const DrawCanvas = () => {
     }, [origin, setOrigin]);
 
     const drawLine = (prev: [number, number] | null, curr: [number, number]) => {
-        console.log(prev);
-        
         const canvas = canvasRef.current;
         const context = canvas?.getContext("2d");
 
@@ -35,6 +36,11 @@ const DrawCanvas = () => {
             context.strokeStyle = "white";
             context.stroke();
             context.closePath();
+
+            setCurrentShape(currentShape => {
+                currentShape.push(curr);
+                return currentShape;
+            });
         } 
     };
 
@@ -51,6 +57,8 @@ const DrawCanvas = () => {
         if (draw) {
             setDraw(false);
             setPrevLoc(null);
+
+            saveCurrentShape();
         }
     }
 
@@ -70,6 +78,22 @@ const DrawCanvas = () => {
         if (touchDraw) {
             setTouchDraw(false);
             setPrevTouch(null);
+
+            saveCurrentShape();
+        }
+    };
+
+    const saveCurrentShape = () => {
+        if (currentShape.length > 0) {
+            setDrawnShapes(
+                drawnShapes => 
+                [
+                    currentShape.filter((_, i) => i % 10 === 0), 
+                    ...drawnShapes
+                ]
+            );
+
+            setCurrentShape([]);
         }
     };
 
