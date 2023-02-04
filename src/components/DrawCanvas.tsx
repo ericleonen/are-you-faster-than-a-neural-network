@@ -79,6 +79,7 @@ const DrawCanvas = () => {
                 ref={canvasRef}
                 height="500"
                 width="500"
+                className="touch-none"
 
                 onMouseDown={startDraw}
                 onMouseUp={endDraw}
