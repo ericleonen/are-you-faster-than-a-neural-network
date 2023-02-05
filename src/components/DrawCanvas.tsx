@@ -9,10 +9,20 @@ const DrawCanvas = () => {
 
     const [origin, setOrigin] = useState<[number, number] | null>(null);
 
-    const [drawnShapes, setDrawnShapes] = useState<number[][][]>([]);
-    const [currentShape, setCurrentShape] = useState<number[][]>([]);
+    const [drawnShapes, setDrawnShapes] = useState<[number, number][][]>([]);
+    const [currentShape, setCurrentShape] = useState<[number, number][]>([]);
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+    useEffect(() => {
+        clearCanvas();
+
+        for (let shape of drawnShapes) {
+            for (let i = 1; i < shape.length; i++) {
+                drawLine(shape[i - 1], shape[i]);
+            }
+        }
+    }, [drawnShapes]);
 
     useEffect(() => {
         if (origin === null) {
@@ -24,11 +34,21 @@ const DrawCanvas = () => {
         }
     }, [origin, setOrigin]);
 
+    const clearCanvas = () => {
+        const canvas = canvasRef.current;
+        const context = canvas?.getContext('2d');
+
+        if (canvas && context) {
+            context.clearRect(0, 0, canvas.width, canvas.height)
+        }
+    };
+
     const drawLine = (prev: [number, number] | null, curr: [number, number]) => {
         const canvas = canvasRef.current;
         const context = canvas?.getContext("2d");
 
         if (canvas && context && prev) {
+            context.beginPath();
             context.moveTo(prev[0], prev[1]);
             context.lineTo(curr[0], curr[1]);
             context.lineWidth = 5;
@@ -36,11 +56,6 @@ const DrawCanvas = () => {
             context.strokeStyle = "white";
             context.stroke();
             context.closePath();
-
-            setCurrentShape(currentShape => {
-                currentShape.push(curr);
-                return currentShape;
-            });
         } 
     };
 
@@ -50,6 +65,10 @@ const DrawCanvas = () => {
             const loc: [number, number] = [clientX - origin[0], clientY - origin[1]];
 
             drawLine(prevLoc, loc);
+            setCurrentShape(currentShape => {
+                currentShape.push(loc);
+                return currentShape;
+            });
             setPrevLoc(loc)
         }
     };
@@ -71,6 +90,10 @@ const DrawCanvas = () => {
             const touchLoc: [number, number] = [clientX - origin[0], clientY - origin[1]]
             
             drawLine(prevTouch, touchLoc);
+            setCurrentShape(currentShape => {
+                currentShape.push(touchLoc);
+                return currentShape;
+            });
             setPrevTouch(touchLoc);
         }
     };
@@ -85,10 +108,15 @@ const DrawCanvas = () => {
 
     const saveCurrentShape = () => {
         if (currentShape.length > 0) {
+            const simpleShape = currentShape.filter((_, i) => i % 10 === 0);
+
+            // needs to be closed
+            // need to remove any extra "tails"
+
             setDrawnShapes(
                 drawnShapes => 
                 [
-                    currentShape.filter((_, i) => i % 10 === 0), 
+                    simpleShape, 
                     ...drawnShapes
                 ]
             );
