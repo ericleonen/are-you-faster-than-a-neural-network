@@ -34,31 +34,37 @@ export const drawGrid = (canvas: HTMLCanvasElement | null, gridOptions: gridOpti
 };
 
 interface dataOptions {
-    data: number[][],
-    radius: number,
-    color: "cyan" | "indigo"
+    dataPoints: dataPoint[],
+    radius: number
 };
 
 export const drawData = (canvas: HTMLCanvasElement | null, dataOptions: dataOptions) => {
     const context = canvas?.getContext("2d");
 
     if (canvas && context) {
-        const { data, radius, color } = dataOptions;
+        const { dataPoints, radius } = dataOptions;
 
-        for (let point of data) {
-            const [x, y] = point;
+        for (let dataPoint of dataPoints) {
+            const { coord, color } = dataPoint;
+            const [x, y] = coord;
 
             context.beginPath();
-            context.arc(x, y, 5, 0, Math.PI * 2);
+            context.arc(x, y, radius, 0, Math.PI * 2);
             context.fillStyle = 
                 (color == "cyan") ? 
                     "rgba(0, 255, 255, 0.5)" : 
                     "rgba(255, 0, 255, 0.5)";
                     ;
             context.fill();
+            context.closePath();
         }
     }
     else {
         console.log("Draw data failed: Canvas is invalid")
     }
+};
+
+export interface dataPoint {
+    coord: [number, number],
+    color: "cyan" | "indigo"
 };

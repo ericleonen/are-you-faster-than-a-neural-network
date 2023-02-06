@@ -1,8 +1,11 @@
-import { drawData, drawGrid } from "@/utils/data";
-import { generateDataCenter, generateDataShape } from "@/utils/dataGen";
+import { drawData, drawGrid, dataPoint } from "@/utils/data";
 import { useEffect, useRef } from "react";
 
-const DataCanvas = () => {
+interface DataCanvasProps {
+    dataPoints: dataPoint[]
+};
+
+const DataCanvas = ({ dataPoints }: DataCanvasProps) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
     useEffect(() => {
@@ -11,25 +14,14 @@ const DataCanvas = () => {
             numLines: 25,
             lineColor: "gray"
         });
-
-        const cyanData = generateDataShape(
-            [
-                [0, 0],
-                [0, 500],
-                [500, 500]
-            ],
-            {
-                numPoints: 1,
-                maxDist: 15
-            }
-        );
-
-        drawData(canvasRef.current, {
-            data: cyanData,
-            radius: 5,
-            color: "cyan"
-        })
     }, []);
+
+    useEffect(() => {
+        drawData(canvasRef.current, {
+            dataPoints,
+            radius: 5,
+        })
+    }, [dataPoints]);
 
     return (
         <div>

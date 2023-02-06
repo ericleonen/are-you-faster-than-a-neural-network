@@ -18,9 +18,11 @@ const DrawCanvas = () => {
         clearCanvas();
 
         for (let shape of drawnShapes) {
-            for (let i = 1; i < shape.length; i++) {
+            let i;
+            for (i = 1; i < shape.length; i++) {
                 drawLine(shape[i - 1], shape[i]);
             }
+            drawLine(shape[0], shape[i - 1]);
         }
     }, [drawnShapes]);
 
@@ -108,7 +110,7 @@ const DrawCanvas = () => {
 
     const saveCurrentShape = () => {
         if (currentShape.length > 0) {
-            const simpleShape = currentShape.filter((_, i) => i % 10 === 0);
+            const simpleShape = currentShape.filter((_, i) => i % 3 === 0);
 
             // needs to be closed
             // need to remove any extra "tails"

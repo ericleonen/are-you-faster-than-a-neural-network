@@ -1,17 +1,19 @@
-import { line, checkPointInsidePolygon, getTopLeftAndBottomRight } from "./polygons";
+import { checkPointInsidePolygon, getTopLeftAndBottomRight } from "./polygons";
+import { dataPoint } from "./data";
 
 // "centers" are points where there are numPoints randomized points
 // at most maxDist distance from center (x, y)
 interface centerOptions {
     numPoints: number,
     maxDist: number,
-    minDist?: number
+    minDist?: number,
+    color: "cyan" | "indigo"
 };
 
-export const generateDataCenter = (center: [number, number], centerOptions: centerOptions): number[][] => {
-    const data = [];
+export const generateDataCenter = (center: [number, number], centerOptions: centerOptions): dataPoint[] => {
+    const dataPoints: dataPoint[] = [];
     const [x, y] = center;
-    const { numPoints, maxDist } = centerOptions;
+    const { numPoints, maxDist, color } = centerOptions;
     let { minDist } = centerOptions;
 
     if (minDist === undefined) {
@@ -25,22 +27,27 @@ export const generateDataCenter = (center: [number, number], centerOptions: cent
         const dist = Math.sqrt(Math.random() * squaredDiff + minDistSquared);
         const angle = Math.random() * 2 * Math.PI;
 
-        data.push([
+        const coord: [number, number] = [
             x + Math.cos(angle) * dist,
             y + Math.sin(angle) * dist
-        ]);
+        ];
+
+        dataPoints.push({
+            coord,
+            color
+        });
     }
 
-    return data;
+    return dataPoints;
 };
 
-export const generateDataShape = (vertices: number[][], centerOptions: centerOptions): number[][] => {
+export const generateDataShape = (vertices: number[][], centerOptions: centerOptions): dataPoint[] => {
     // find the top left point
     // find the bottom right point
     // move in a spaced grid, creating dataCenters each time
     // the grid point is in the polygon (defined by the vertices)
 
-    const data: number[][] = [];
+    let dataPoints: dataPoint[] = [];
 
     const { topLeft, bottomRight } = getTopLeftAndBottomRight(vertices);
 
@@ -53,13 +60,10 @@ export const generateDataShape = (vertices: number[][], centerOptions: centerOpt
             
             if (checkPointInsidePolygon(vertices, point)) {
                 const dataCenterPoints = generateDataCenter(point, centerOptions);
-
-                for (let dataCenterPoint of dataCenterPoints) {
-                    data.push(dataCenterPoint);
-                }
+                dataPoints = dataPoints.concat(dataCenterPoints);
             }
         }
     }
 
-    return data;
+    return dataPoints;
 };
