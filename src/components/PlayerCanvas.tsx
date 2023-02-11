@@ -3,9 +3,11 @@ import DrawCanvas from "@/components/DrawCanvas";
 import { dataPoint } from "@/utils/data";
 import { generateDataShape } from "@/utils/dataGen";
 import { useEffect, useState } from "react";
+import { getTopLeftAndBottomRight, shape } from "@/utils/polygons";
 
 const PlayerCanvas = () => {
     const [dataPoints, setDataPoints] = useState<dataPoint[]>([]);
+    const [shapes, setShapes] = useState<shape[]>([]);
 
     useEffect(() => {
         setDataPoints(
@@ -26,7 +28,7 @@ const PlayerCanvas = () => {
 
     return (
         <div className="relative">
-            <DrawCanvas />
+            <DrawCanvas setShapes={setShapes} shapes={shapes} />
             <DataCanvas dataPoints={dataPoints}/>
         </div>
     );

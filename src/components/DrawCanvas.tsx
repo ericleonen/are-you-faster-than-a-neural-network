@@ -1,30 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
+import { getDistanceBetweenPoints, shape } from "@/utils/polygons";
 
-const DrawCanvas = () => {
-    const [draw, setDraw] = useState(false);
-    const [prevLoc, setPrevLoc] = useState<[number, number] | null>(null);
+interface DrawCanvasProps {
+    shapes: shape[],
+    setShapes: any
+};
 
-    const [touchDraw, setTouchDraw] = useState(false);
-    const [prevTouch, setPrevTouch] = useState<[number, number] | null>(null);
+const DrawCanvas = ({ shapes, setShapes }: DrawCanvasProps) => {
+    // implement point and click polygon generator
 
     const [origin, setOrigin] = useState<[number, number] | null>(null);
-
-    const [drawnShapes, setDrawnShapes] = useState<[number, number][][]>([]);
+    
     const [currentShape, setCurrentShape] = useState<[number, number][]>([]);
+    const [currentPoint, setCurrentPoint] = useState<[number, number] | null>(null);
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-    useEffect(() => {
-        clearCanvas();
-
-        for (let shape of drawnShapes) {
-            let i;
-            for (i = 1; i < shape.length; i++) {
-                drawLine(shape[i - 1], shape[i]);
-            }
-            drawLine(shape[0], shape[i - 1]);
-        }
-    }, [drawnShapes]);
 
     useEffect(() => {
         if (origin === null) {
@@ -36,12 +26,63 @@ const DrawCanvas = () => {
         }
     }, [origin, setOrigin]);
 
-    const clearCanvas = () => {
-        const canvas = canvasRef.current;
-        const context = canvas?.getContext('2d');
+    useEffect(() => {
+        clearCanvas();
 
-        if (canvas && context) {
-            context.clearRect(0, 0, canvas.width, canvas.height)
+        // draw shapes
+        shapes.forEach(({ vertices }) => {
+            for (let p = 0; p < vertices.length; p++) {
+                if (p === 0) drawLine(vertices[vertices.length - 1], vertices[0]);
+                else drawLine(vertices[p - 1], vertices[p]);
+            }
+        });
+
+        // draw current shape
+        if (currentShape.length > 0) {
+            for (let p = 1; p < currentShape.length; p++) {
+                drawLine(currentShape[p - 1], currentShape[p]);
+            }
+        }
+
+        // draw current line
+        if (currentPoint) {
+            drawLine(currentShape[currentShape.length - 1], currentPoint);
+        }
+    }, [shapes, currentShape, currentPoint]);
+
+    const trackMouse = ({ clientX, clientY } : React.MouseEvent<HTMLCanvasElement>) => {
+        if (origin) {
+            const currentPos: [number, number] = [clientX - origin[0], clientY - origin[1]];
+
+            if (currentPoint && currentShape.length > 2 && getDistanceBetweenPoints(currentPos, currentShape[0]) < 10)
+                setCurrentPoint(currentShape[0]);
+            else setCurrentPoint(currentPos);
+        }
+    };
+
+    const setPoint = () => {
+        if (currentPoint) {
+            if (currentShape.length > 2 && getDistanceBetweenPoints(currentPoint, currentShape[0]) === 0) {
+                setCurrentPoint(null);
+
+                // save shape
+                const newShape: shape = {
+                    vertices: currentShape,
+                    indigoCount: 0,
+                    cyanCount: 0
+                };
+
+                setShapes((shapes: shape[]) => [
+                    newShape,
+                    ...shapes
+                ]);
+                setCurrentShape([]);
+            }
+            else {
+                setCurrentShape(currentShape => {
+                    return [...currentShape, currentPoint]
+                });
+            }
         }
     };
 
@@ -61,70 +102,12 @@ const DrawCanvas = () => {
         } 
     };
 
-    const startDraw = () => setDraw(true);
-    const onDraw = ({ clientX, clientY }: React.MouseEvent<HTMLCanvasElement>) => {
-        if (draw && origin) {
-            const loc: [number, number] = [clientX - origin[0], clientY - origin[1]];
+    const clearCanvas = () => {
+        const canvas = canvasRef.current;
+        const context = canvas?.getContext("2d");
 
-            drawLine(prevLoc, loc);
-            setCurrentShape(currentShape => {
-                currentShape.push(loc);
-                return currentShape;
-            });
-            setPrevLoc(loc)
-        }
-    };
-    const endDraw = () => {
-        if (draw) {
-            setDraw(false);
-            setPrevLoc(null);
-
-            saveCurrentShape();
-        }
-    }
-
-    const startTouchDraw = () => {
-        setTouchDraw(true);
-    };
-    const onTouchDraw = ({ touches }: React.TouchEvent<HTMLCanvasElement>) => {
-        if (touchDraw && origin) {
-            const { clientX, clientY } = touches[0];
-            const touchLoc: [number, number] = [clientX - origin[0], clientY - origin[1]]
-            
-            drawLine(prevTouch, touchLoc);
-            setCurrentShape(currentShape => {
-                currentShape.push(touchLoc);
-                return currentShape;
-            });
-            setPrevTouch(touchLoc);
-        }
-    };
-    const endTouchDraw = () => {
-        if (touchDraw) {
-            setTouchDraw(false);
-            setPrevTouch(null);
-
-            saveCurrentShape();
-        }
-    };
-
-    const saveCurrentShape = () => {
-        if (currentShape.length > 0) {
-            const simpleShape = currentShape.filter((_, i) => i % 3 === 0);
-
-            // needs to be closed
-            // need to remove any extra "tails"
-
-            setDrawnShapes(
-                drawnShapes => 
-                [
-                    simpleShape, 
-                    ...drawnShapes
-                ]
-            );
-
-            setCurrentShape([]);
-        }
+        if (canvas && context)
+            context.clearRect(0, 0, canvas.width, canvas.height);
     };
 
     return (
@@ -135,14 +118,8 @@ const DrawCanvas = () => {
                 width="500"
                 className="touch-none"
 
-                onMouseDown={startDraw}
-                onMouseUp={endDraw}
-                onMouseMove={onDraw}
-                onMouseLeave={endDraw}
-
-                onTouchStart={startTouchDraw}
-                onTouchEnd={endTouchDraw}
-                onTouchMove={onTouchDraw}
+                onMouseMove={trackMouse}
+                onClick={setPoint}
             />
         </div>
     );

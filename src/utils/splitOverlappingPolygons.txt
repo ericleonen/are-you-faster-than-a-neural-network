@@ -1,0 +1,12 @@
+1. determine what type of shape is drawn
+    - ALGO 1: convex or concave?
+        - iterate over all points p_i and get p_(i + 1) and p_(i + 2)
+        
+
+
+    there are 3 possibilities
+        1. convex
+        2. concave
+            - GOAL: turn into convex
+        3. complex
+            - GOAL: turn into simple shapes
