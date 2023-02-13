@@ -22,6 +22,86 @@ const checkRayIntersects = (line: line, ray: number[]): boolean => {
     return intersectX >= minX && intersectX <= maxX;
 };
 
+export const checkLinesIntersect = (line1: line, line2: line): boolean => {
+    const { from: from1, to: to1 } = line1;
+    const { from: from2, to: to2 } = line2;
+
+    const [xf1, yf1] = from1;
+    const [xt1, yt1] = to1;
+    const [xf2, yf2] = from2;
+    const [xt2, yt2] = to2;
+
+    const m1 = (yt1 - yf1) / (xt1 - xf1);
+    const m2 = (yt2 - yf2) / (xt2 - xf2);
+
+    if (m1 - m2 === 0) return false; // parallel lines don't intersect
+
+    if (xf1 === xt1 || xf2 === xt2) {
+        // handle a vertical line (only one is vertical)
+        let x, yfv, ytv, xf, yf, xt, yt, m;
+
+        if (xf1 === xt1) {
+            // line 1 is vertical
+            x = xf1;
+            yfv = yf1;
+            ytv = yt1;
+            [xf, yf] = from2;
+            [xt, yt] = to2;
+            m = m2;
+        }
+        else {
+            // line 2 is vertical
+            x = xf2;
+            yfv = yf2;
+            ytv = yt2;
+            [xf, yf] = from1;
+            [xt, yt] = to1;
+            m = m1;
+        }
+
+        const y = m * (x - xf) + yf;
+
+        const minX = Math.min(xf, xt);
+        const maxX = Math.max(xf, xt);
+        const minYV = Math.min(yfv, ytv);
+        const maxYV = Math.max(yfv, ytv);
+        const minY = Math.min(yf, yt);
+        const maxY = Math.max(yf, yt);
+
+        // console.log("intersection at: (" +  x + ", " + y + ")");
+        // console.log("maxY: " + Math.min(maxYV, maxY));
+        // console.log("minY: " + Math.max(minYV, minY));
+
+        return (
+            x > minX && x < maxX &&
+            y < Math.min(maxYV, maxY) &&
+            y > Math.max(minYV, minY)
+        );
+    }
+    else {
+        // normal case (non-parallel, non-vertical lines)
+        const x = (m1 * xf1 - yf1 - m2 * xf2 + yf2) / (m1 - m2);
+        const y = yf1 + m1 * (x - xf1);
+
+        const minX1 = Math.min(xf1, xt1);
+        const maxX1 = Math.max(xf1, xt1);
+        const minY1 = Math.min(yf1, yt1);
+        const maxY1 = Math.max(yf1, yt1);
+
+        const minX2 = Math.min(xf2, xt2);
+        const maxX2 = Math.max(xf2, xt2);
+        const minY2 = Math.min(yf2, yt2);
+        const maxY2 = Math.max(yf2, yt2);
+
+        return (
+            x > Math.max(minX1, minX2) && 
+            x < Math.min(maxX1, maxX2) &&
+            y > Math.max(minY1, minY2) && 
+            y < Math.min(maxY1, maxY2)
+        );
+    }
+};
+
 export const checkPointInsidePolygon = (vertices: number[][], point: number[]): boolean => {
     let count = 0;
 

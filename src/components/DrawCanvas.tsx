@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { getDistanceBetweenPoints, shape } from "@/utils/polygons";
+import { getDistanceBetweenPoints, shape, checkPointInsidePolygon, line, checkLinesIntersect } from "@/utils/polygons";
 
 interface DrawCanvasProps {
     shapes: shape[],
@@ -60,8 +60,42 @@ const DrawCanvas = ({ shapes, setShapes }: DrawCanvasProps) => {
         }
     };
 
+    const checkAnyIntersections = (): boolean => {
+        if (currentPoint && currentShape.length) {
+            // check if there are any line intersections
+            const line2: line = {
+                from: currentShape[currentShape.length - 1],
+                to: currentPoint
+            };
+
+            for (const { vertices } of shapes) {
+                for (let p = 0; p < vertices.length; p++) {
+                    const line1: line = {
+                        from: vertices[p],
+                        to: vertices[p + 1 == vertices.length ? 0 : p + 1]
+                    };
+
+                    if (checkLinesIntersect(line1, line2)) return true;
+                }
+            }
+
+            for (let p = 1; p < currentShape.length; p++) {
+                const line1: line = {
+                    from: currentShape[p - 1],
+                    to: currentShape[p]
+                };
+
+                if (checkLinesIntersect(line1, line2)) return true;
+            }
+        }
+
+        return false;
+    };
+
     const setPoint = () => {
         if (currentPoint) {
+            if (checkAnyIntersections()) return;
+
             if (currentShape.length > 2 && getDistanceBetweenPoints(currentPoint, currentShape[0]) === 0) {
                 setCurrentPoint(null);
 
