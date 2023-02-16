@@ -9,6 +9,8 @@ const PlayerCanvas = () => {
     const [dataPoints, setDataPoints] = useState<dataPoint[]>([]);
     const [shapes, setShapes] = useState<shape[]>([]);
 
+    const [correct, setCorrect] = useState(0);
+
     useEffect(() => {
         const dataShape1 = generateDataShape(
             [
@@ -79,17 +81,32 @@ const PlayerCanvas = () => {
             }
         }
 
-        console.log(shapes_);
+        let correctlyClassified = 0;
+
+        for (let { shapeIndex, color } of dataPoints_) {
+            if (shapeIndex >= 0) {
+                const { cyanCount, indigoCount } = shapes_[shapeIndex];
+                
+                if (cyanCount > indigoCount && color === "cyan") correctlyClassified++;
+                else if (indigoCount > cyanCount && color === "indigo") correctlyClassified++;
+            }
+        };
 
         setDataPoints(dataPoints_);
         setShapes(shapes_);
+        setCorrect(correctlyClassified);
     };
 
     return (
-        <div className="relative">
-            <DrawCanvas setShapes={setShapes} shapes={shapes} categorizePoints={categorizePoints}/>
-            <DataCanvas dataPoints={dataPoints}/>
-        </div>
+        <>
+            <div className="relative">
+                <DrawCanvas setShapes={setShapes} shapes={shapes} categorizePoints={categorizePoints}/>
+                <DataCanvas dataPoints={dataPoints}/>
+            </div>
+            <div className="flex">
+                <p className="font-semibold text-white">Accuracy: {Math.round(correct / dataPoints.length * 100 * 100) / 100}%</p>
+            </div>
+        </>
     );
 };
 
