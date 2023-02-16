@@ -1,10 +1,10 @@
 export interface line {
-    from: number[],
-    to: number[]
+    from: [number, number],
+    to: [number, number]
 };
 
 // ray starts from left end of canvas (x = 0)
-const checkRayIntersects = (line: line, ray: number[]): number => {
+const checkRayIntersects = (line: line, ray: [number, number]): number => {
     const { from, to } = line;
 
     const slope = (to[0] - from[0]) / (to[1] - from[1]);
@@ -102,7 +102,7 @@ export const checkLinesIntersect = (line1: line, line2: line): boolean => {
     }
 };
 
-export const checkPointInsidePolygon = (vertices: number[][], point: [number, number], getDistance: boolean = false): boolean | number => {
+export const checkPointInsidePolygon = (vertices: [number, number][], point: [number, number], getDistance: boolean = false): boolean | number => {
     let count = 0;
     let minDist = Number.MAX_SAFE_INTEGER;
 
@@ -133,7 +133,7 @@ export const checkPointInsidePolygon = (vertices: number[][], point: [number, nu
     }
 };
 
-export const getTopLeftAndBottomRight = (vertices: number[][]): { topLeft: [number, number], bottomRight: [number, number] } => {
+export const getTopLeftAndBottomRight = (vertices: [number, number][]): { topLeft: [number, number], bottomRight: [number, number] } => {
     const topLeft: [number, number] = [-1, -1];
     const bottomRight: [number, number] = [-1, -1];
 

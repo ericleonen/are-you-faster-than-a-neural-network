@@ -43,7 +43,7 @@ export const generateDataCenter = (center: [number, number], centerOptions: cent
     return dataPoints;
 };
 
-export const generateDataShape = (vertices: number[][], centerOptions: centerOptions): dataPoint[] => {
+export const generateDataShape = (vertices: [number, number][], centerOptions: centerOptions): dataPoint[] => {
     // find the top left point
     // find the bottom right point
     // move in a spaced grid, creating dataCenters each time

@@ -8,15 +8,23 @@ interface DataCanvasProps {
 const DataCanvas = ({ dataPoints }: DataCanvasProps) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+    const clearCanvas = () => {
+        const canvas = canvasRef?.current;
+        const context = canvas?.getContext("2d");
+
+        if (canvas && context) {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    };
+
     useEffect(() => {
+        clearCanvas();
+
         drawGrid(canvasRef.current, {
             lineWidth: 0.25,
             numLines: 25,
             lineColor: "gray"
         });
-    }, []);
-
-    useEffect(() => {
         drawData(canvasRef.current, {
             dataPoints,
             radius: 5,
