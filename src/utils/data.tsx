@@ -66,5 +66,7 @@ export const drawData = (canvas: HTMLCanvasElement | null, dataOptions: dataOpti
 
 export interface dataPoint {
     coord: [number, number],
-    color: "cyan" | "indigo"
+    color: "cyan" | "indigo",
+    distance: number,
+    shapeIndex: number
 };

@@ -34,7 +34,9 @@ export const generateDataCenter = (center: [number, number], centerOptions: cent
 
         dataPoints.push({
             coord,
-            color
+            color,
+            distance: Number.MAX_SAFE_INTEGER,
+            shapeIndex: -1
         });
     }
 
@@ -50,7 +52,6 @@ export const generateDataShape = (vertices: number[][], centerOptions: centerOpt
     let dataPoints: dataPoint[] = [];
 
     const { topLeft, bottomRight } = getTopLeftAndBottomRight(vertices);
-
     const { maxDist } = centerOptions;
 
     for (let x = topLeft[0]; x < bottomRight[0] + maxDist; x += maxDist) {

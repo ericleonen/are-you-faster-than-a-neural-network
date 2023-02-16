@@ -4,14 +4,14 @@ export interface line {
 };
 
 // ray starts from left end of canvas (x = 0)
-const checkRayIntersects = (line: line, ray: number[]): boolean => {
+const checkRayIntersects = (line: line, ray: number[]): number => {
     const { from, to } = line;
 
     const slope = (to[0] - from[0]) / (to[1] - from[1]);
 
-    if (to[1] - from[1] === 0) return false;
-    else if(to[0] - from[0] === 0) {
-        return to[0] <= ray[0];
+    if (to[1] - from[1] === 0) return -1;
+    else if (to[0] - from[0] === 0) {
+        return (to[0] <= ray[0]) ? ray[0] - to[0] : - 1;
     }
 
     const intersectX = (ray[1] - from[1]) * slope + from[0];
@@ -19,7 +19,7 @@ const checkRayIntersects = (line: line, ray: number[]): boolean => {
     const minX = Math.min(from[0], to[0]);
     const maxX = Math.min(Math.max(from[0], to[0]), ray[0]);
 
-    return intersectX >= minX && intersectX <= maxX;
+    return (intersectX >= minX && intersectX <= maxX) ? ray[0] - intersectX : -1;
 };
 
 export const checkLinesIntersect = (line1: line, line2: line): boolean => {
@@ -102,8 +102,9 @@ export const checkLinesIntersect = (line1: line, line2: line): boolean => {
     }
 };
 
-export const checkPointInsidePolygon = (vertices: number[][], point: number[]): boolean => {
+export const checkPointInsidePolygon = (vertices: number[][], point: [number, number], getDistance: boolean = false): boolean | number => {
     let count = 0;
+    let minDist = Number.MAX_SAFE_INTEGER;
 
     for (let i = 0; i < vertices.length; i++) {
         let j = i + 1;
@@ -117,10 +118,19 @@ export const checkPointInsidePolygon = (vertices: number[][], point: number[]): 
             to: vertices[j]
         };
 
-        if (checkRayIntersects(line, point)) count++;
+        const dist = checkRayIntersects(line, point);
+        if (dist >= 0) {
+            count++;
+            minDist = Math.min(minDist, dist);
+        }
     }
 
-    return count % 2 === 1;
+    if (count % 2 === 1) {
+        return getDistance ? minDist : true;
+    }
+    else {
+        return getDistance ? -1 : false;
+    }
 };
 
 export const getTopLeftAndBottomRight = (vertices: number[][]): { topLeft: [number, number], bottomRight: [number, number] } => {

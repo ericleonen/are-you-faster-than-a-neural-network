@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import { getDistanceBetweenPoints, shape, checkPointInsidePolygon, line, checkLinesIntersect } from "@/utils/polygons";
+import { getDistanceBetweenPoints, shape, line, checkLinesIntersect } from "@/utils/polygons";
 
 interface DrawCanvasProps {
     shapes: shape[],
-    setShapes: any
+    setShapes: any,
+    categorizePoints: any
 };
 
-const DrawCanvas = ({ shapes, setShapes }: DrawCanvasProps) => {
+const DrawCanvas = ({ shapes, setShapes, categorizePoints }: DrawCanvasProps) => {
     // implement point and click polygon generator
 
     const [origin, setOrigin] = useState<[number, number] | null>(null);
@@ -27,13 +28,23 @@ const DrawCanvas = ({ shapes, setShapes }: DrawCanvasProps) => {
     }, [origin, setOrigin]);
 
     useEffect(() => {
+        if (currentShape.length === 0) {
+            categorizePoints();
+        }
+    }, [currentShape]);
+
+    useEffect(() => {
         clearCanvas();
 
         // draw shapes
-        shapes.forEach(({ vertices }) => {
+        shapes.forEach(({ vertices, indigoCount, cyanCount }) => {
+            let color = "white";
+            if (cyanCount > indigoCount) color = "cyan";
+            else if (indigoCount > cyanCount) color = "indigo";
+
             for (let p = 0; p < vertices.length; p++) {
-                if (p === 0) drawLine(vertices[vertices.length - 1], vertices[0]);
-                else drawLine(vertices[p - 1], vertices[p]);
+                if (p === 0) drawLine(vertices[vertices.length - 1], vertices[0], color);
+                else drawLine(vertices[p - 1], vertices[p], color);
             }
         });
 
@@ -107,8 +118,8 @@ const DrawCanvas = ({ shapes, setShapes }: DrawCanvasProps) => {
                 };
 
                 setShapes((shapes: shape[]) => [
-                    newShape,
-                    ...shapes
+                    ...shapes,
+                    newShape
                 ]);
                 setCurrentShape([]);
             }
@@ -120,17 +131,22 @@ const DrawCanvas = ({ shapes, setShapes }: DrawCanvasProps) => {
         }
     };
 
-    const drawLine = (prev: [number, number] | null, curr: [number, number]) => {
+    const drawLine = (prev: [number, number] | null, curr: [number, number], color: string = "white") => {
         const canvas = canvasRef.current;
         const context = canvas?.getContext("2d");
+
+        if (color === "cyan") color = "#42E0D1"
+        if (color === "indigo") color = "#8B66FF";
 
         if (canvas && context && prev) {
             context.beginPath();
             context.moveTo(prev[0], prev[1]);
             context.lineTo(curr[0], curr[1]);
-            context.lineWidth = 5;
+            context.lineWidth = 7;
             context.lineCap = "round";
-            context.strokeStyle = "white";
+            context.strokeStyle = color;
+            context.shadowBlur = 15;
+            context.shadowColor = color;
             context.stroke();
             context.closePath();
         } 
